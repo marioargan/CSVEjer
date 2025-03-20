@@ -1,12 +1,11 @@
 package servicios;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import controladores.Inicio;
@@ -18,48 +17,77 @@ public class Propietariosimplementacion implements PropietariosInterfaz {
 	@Override
 	public void añadirPropietario() {
 		
-		Path path= Paths.get("datosiniciales");
-		PropietariosDto propietarios = new PropietariosDto(Inicio.idAutonumerico++,null,null ,null , false);
-		VehiculosDto vehiculos = new VehiculosDto();
-	
-		try {
-			List<String> lineas = Files.readAllLines(path);
-			
-			for (String fila : lineas	) {
-				System.out.println(fila);
-			
-				PropietariosDto prop = new PropietariosDto(Inicio.idAutonumerico++, fila, fila, null, false);
-				VehiculosDto vehi = new VehiculosDto();
-				if (fila.equals("matricula:fchMatriculacion:dni:fchCompra\n")) {
-					continue;
-				}
-				String[] tramos = fila.split(":");
-				prop.setMatricula(tramos[0]);
-				vehi.setMatricula(tramos[0]);
-				String fechaString = tramos[1];
-				LocalDate nuevaFechaMatricula =LocalDate.parse(fechaString); 
-				vehi.setFechaMatricula(nuevaFechaMatricula);
-				prop.setDni(tramos[2]);
-				String fechaString2=tramos[3];
-				LocalDate nuevaFechaCompra= LocalDate.parse(fechaString2);
-				prop.setFechaCompra(nuevaFechaCompra);
-				
-				LocalDate hoy= LocalDate.now();
-				
-				int diferencia= nuevaFechaMatricula.until(hoy).getYears();
-				if (diferencia>=25) {
-					prop.setEsHistorico(true);
-				}
-				propietarios=prop;
-				vehiculos=vehi;
-			}
-			Inicio.propietarios.add(propietarios);
-			Inicio.vehiculos.add(vehiculos);
-			
-		} catch (IOException e) {
-			System.out.println("Error al leer el pepe" +e.getMessage());
-		}
-		
+		Path path = Paths.get("datosIniciales.txt");
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+	    try {
+	        if (!Files.exists(path)) {
+	            System.out.println("El archivo no existe: " + path);
+	            return;
+	        }
+
+	        List<String> lineas = Files.readAllLines(path);
+
+	        if (lineas.isEmpty()) {
+	            System.out.println("El archivo está vacío.");
+	            return;
+	        }
+
+	        boolean primeraLinea = true;
+
+	        for (String fila : lineas) {
+	            if (primeraLinea) {
+	                primeraLinea = false;
+	                continue; // Saltamos la cabecera
+	            }
+
+	            System.out.println(fila);
+
+	            String[] tramos = fila.split(":",4);
+
+	            // Verificar que la línea tenga 4 columnas
+	            if (tramos.length != 4) {
+	                System.out.println("Error: línea con formato incorrecto -> " + fila);
+	                continue;
+	            }
+
+	            // Validar que las fechas estén bien formateadas
+	            if (!tramos[1].matches("\\d{2}-\\d{2}-\\d{4}") || !tramos[3].matches("\\d{2}-\\d{2}-\\d{4}")) {
+	                System.out.println("Formato de fecha incorrecto en línea: " + fila);
+	                continue;
+	            }
+
+	            // Crear objetos DTO para cada línea
+	            PropietariosDto prop = new PropietariosDto(Inicio.idAutonumerico++, null, null, null, false);
+	            VehiculosDto vehi = new VehiculosDto();
+
+	            // Asignar valores
+	            prop.setMatricula(tramos[0]);
+	            vehi.setMatricula(tramos[0]);
+
+	            LocalDate fechaMatricula = LocalDate.parse(tramos[1], formatter);
+	            vehi.setFechaMatricula(fechaMatricula);
+
+	            prop.setDni(tramos[2]);
+
+	            LocalDate fechaCompra = LocalDate.parse(tramos[3], formatter);
+	            prop.setFechaCompra(fechaCompra);
+
+	            // Determinar si es histórico
+	            LocalDate hoy = LocalDate.now();
+	            int diferencia = fechaMatricula.until(hoy).getYears();
+	            prop.setEsHistorico(diferencia >= 25);
+
+	            // 🚀 Ahora sí agregamos los DTOs correctamente a la lista
+	            Inicio.propietarios.add(prop);
+	            Inicio.vehiculos.add(vehi);
+	        }
+
+	        System.out.println("Se han añadido todos los propietarios y vehículos correctamente.");
+
+	    } catch (IOException e) {
+	        System.out.println("Error al leer el archivo: " + e.getMessage());
+	    }
 		
 		
 		
