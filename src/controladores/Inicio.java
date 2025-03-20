@@ -1,13 +1,11 @@
 package controladores;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import dto.PropietariosDto;
+import dto.VehiculosDto;
 import servicios.MenuImplementacion;
 import servicios.MenuInterfaz;
 
@@ -16,8 +14,10 @@ public class Inicio {
 	public static long idAutonumerico=1;
 	public static Scanner sc = new Scanner(System.in);
 	public static byte opcionusuario;
-	public static List<String> vehiculos = new ArrayList<String>();
-	public static List<String> propietarios = new ArrayList<String>();
+	public static List<VehiculosDto> vehiculos = new ArrayList<VehiculosDto>();
+	public static List<PropietariosDto> propietarios = new ArrayList<PropietariosDto>();
+	
+	
 	
 	
 	public static void main(String[] args) {

@@ -15,7 +15,7 @@ public class MenuImplementacion implements MenuInterfaz {
 	
 	@Override
 	public void propietarios() {
-		
+		PropietariosInterfaz prop = new Propietariosimplementacion();
 		System.out.println("=============");
 		System.out.println("1.Añadir Propietario");
 		System.out.println("2.Listar Propietarios");
@@ -26,11 +26,11 @@ public class MenuImplementacion implements MenuInterfaz {
 		
 		switch (Inicio.opcionusuario=Inicio.sc.nextByte()) {
 		case 1: {
-			
+			prop.añadirPropietario();
 			break;
 		}
 		case 2:{
-			
+			prop.listar();
 			break;
 		}
 		case 3:{
